@@ -1,0 +1,22 @@
+{
+  "name": "@mira/logger",
+  "version": "1.0.0",
+  "description": "Simple JS logger.",
+  "author": "Mira Developers",
+  "license": "SEE LICENSE IN LICENSE",
+  "main": "index.js",
+  "engines": {
+    "node": ">=8.10.0 <9",
+    "npm": ">=5.6.0 <6"
+  },
+  "scripts": {
+    "build": "boot build umd"
+  },
+  "peerDependencies": {
+    "lodash": "^4.17.10"
+  },
+  "devDependencies": {
+    "@fiuzagr/boot": "github:fiuzagr/boot#master",
+    "lodash": "^4.17.10"
+  }
+}
