@@ -1,7 +1,4 @@
-import util from 'util';
-import map from 'lodash/map';
-import isObject from 'lodash/isObject';
-import toLower from 'lodash/toLower';
+import { inspect } from 'util';
 
 const LEVELS = {
   error: 0,
@@ -12,7 +9,7 @@ const LEVELS = {
   silly: 5
 };
 
-const createLogger = ({ logLevel, debugMode }) => {
+const createLogger = ({ logLevel, debugMode, inspectOptions = {} }) => {
   const color = (colorNum, str) =>
     (debugMode && `\x1b[${colorNum}m${str}\x1b[0m`) || str;
   const red = str => color('31', str);
@@ -20,11 +17,12 @@ const createLogger = ({ logLevel, debugMode }) => {
   const yellow = str => color('33', str);
   const blue = str => color('34', str);
 
-  const inspectOptions = {
-    colors: debugMode
+  inspectOptions = {
+    colors: debugMode,
+    ...inspectOptions
   };
 
-  logLevel = toLower(logLevel || (debugMode ? 'debug' : 'info'));
+  logLevel = (logLevel || (debugMode ? 'debug' : 'info')).toLowerCase();
 
   const logger = {
     color: {
@@ -35,19 +33,18 @@ const createLogger = ({ logLevel, debugMode }) => {
     },
 
     log: (level, ...args) => {
-      args = map(
-        args,
+      args = args.map(
         a =>
-          isObject(a)
+          a === Object(a)
             ? debugMode
-              ? util.inspect(a, inspectOptions)
+              ? inspect(a, inspectOptions)
               : JSON.stringify(a)
             : a
       );
       args.unshift(level);
       !debugMode &&
         args.unshift(new Date().toISOString().replace(/[TZ]/g, ' '));
-      console.log(...args);
+      console.log(...args); // eslint-disable-line no-console
     },
 
     error: (...args) => {
