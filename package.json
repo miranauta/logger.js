@@ -5,6 +5,12 @@
   "author": "Mira Developers",
   "license": "SEE LICENSE IN LICENSE",
   "main": "index.js",
+  "files": [
+    "dist",
+    "index.js",
+    "LICENSE",
+    "README.md"
+  ],
   "engines": {
     "node": ">=8.10.0 <9",
     "npm": ">=5.6.0 <6"
