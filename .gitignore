@@ -3,7 +3,6 @@
 
 !.babelrc.js
 !.editorconfig
-!.env.example
 !.eslintignore
 !.eslintrc.js
 !.gitignore

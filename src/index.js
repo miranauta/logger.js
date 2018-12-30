@@ -9,13 +9,29 @@ const LEVELS = {
   silly: 5
 };
 
+const isNode = process && process.release && process.release.name === 'node';
+
+const termColors = {
+  red: '31',
+  green: '32',
+  olive: '33',
+  blue: '34'
+};
+
 const createLogger = ({ logLevel, debugMode, inspectOptions = {} }) => {
-  const color = (colorNum, str) =>
-    (debugMode && `\x1b[${colorNum}m${str}\x1b[0m`) || str;
-  const red = str => color('31', str);
-  const green = str => color('32', str);
-  const yellow = str => color('33', str);
-  const blue = str => color('34', str);
+  const color = (color, str) => {
+    if (!debugMode) return [str];
+
+    if (isNode) {
+      return [`\x1b[${termColors[color]}m${str}\x1b[0m`];
+    }
+
+    return [`%c${str}`, `color: ${color};`];
+  };
+  const red = str => color('red', str);
+  const green = str => color('green', str);
+  const yellow = str => color('olive', str); // olive in the browser gets better
+  const blue = str => color('blue', str);
 
   inspectOptions = {
     colors: debugMode,
@@ -32,39 +48,47 @@ const createLogger = ({ logLevel, debugMode, inspectOptions = {} }) => {
       blue
     },
 
-    log: (level, ...args) => {
-      args = args.map(
-        a =>
-          a === Object(a)
-            ? debugMode
-              ? inspect(a, inspectOptions)
-              : JSON.stringify(a)
-            : a
+    _prepareArgs: (level, ...args) => {
+      args = args.map(a =>
+        a === Object(a) && isNode
+          ? debugMode
+            ? inspect(a, inspectOptions)
+            : JSON.stringify(a)
+          : a
       );
       args.unshift(level);
       !debugMode &&
         args.unshift(new Date().toISOString().replace(/[TZ]/g, ' '));
-      console.log(...args); // eslint-disable-line no-console
+      return args;
+    },
+
+    log: (logFunc, ...args) => {
+      // eslint-disable-next-line no-console
+      const log = console && (console[logFunc] || console.log);
+      log && log(...logger._prepareArgs(...args));
     },
 
     error: (...args) => {
-      logger.log(red('ERROR'), ...args);
+      logger.log('error', ...red('ERROR'), ...args);
     },
 
     warn: (...args) => {
-      LEVELS[logLevel] >= LEVELS.warn && logger.log(yellow('WARN'), ...args);
+      LEVELS[logLevel] >= LEVELS.warn &&
+        logger.log('warn', ...yellow('WARN'), ...args);
     },
 
     info: (...args) => {
-      LEVELS[logLevel] >= LEVELS.info && logger.log(blue('INFO'), ...args);
+      LEVELS[logLevel] >= LEVELS.info &&
+        logger.log('info', ...blue('INFO'), ...args);
     },
 
     debug: (...args) => {
-      LEVELS[logLevel] >= LEVELS.debug && logger.log(green('DEBUG'), ...args);
+      LEVELS[logLevel] >= LEVELS.debug &&
+        logger.log('debug', ...green('DEBUG'), ...args);
     },
 
     silly: (...args) => {
-      LEVELS[logLevel] >= LEVELS.silly && logger.log('SILLY', ...args);
+      LEVELS[logLevel] >= LEVELS.silly && logger.log('silly', 'SILLY', ...args);
     }
   };
 
