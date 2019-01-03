@@ -9,8 +9,6 @@ const LEVELS = {
   silly: 5
 };
 
-const isNode = process && process.release && process.release.name === 'node';
-
 const termColors = {
   red: '31',
   green: '32',
@@ -19,6 +17,8 @@ const termColors = {
 };
 
 const createLogger = ({ logLevel, debugMode, inspectOptions = {} }) => {
+  const isNode = process && process.release && process.release.name === 'node';
+  
   const color = (color, str) => {
     if (!debugMode) return [str];
 
