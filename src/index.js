@@ -16,9 +16,14 @@ const termColors = {
   blue: '34'
 };
 
-const createLogger = ({ logLevel, debugMode, inspectOptions = {} }) => {
-  const isNode = process && process.release && process.release.name === 'node';
-  
+const createLogger = (options = {}) => {
+  let {
+    logLevel = 'info',
+    debugMode = false,
+    isNode = true,
+    inspectOptions = {}
+  } = options;
+
   const color = (color, str) => {
     if (!debugMode) return [str];
 
@@ -38,7 +43,7 @@ const createLogger = ({ logLevel, debugMode, inspectOptions = {} }) => {
     ...inspectOptions
   };
 
-  logLevel = (logLevel || (debugMode ? 'debug' : 'info')).toLowerCase();
+  logLevel = logLevel.toLowerCase();
 
   const logger = {
     color: {
